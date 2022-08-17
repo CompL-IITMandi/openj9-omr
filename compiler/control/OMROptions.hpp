@@ -1390,6 +1390,11 @@ public:
 
    TR::FILE *          getLogFile()          {return _logFile;}
    void            setLogFile(TR::FILE * f)  {_logFile = f;}
+   /** AR07 */
+   static TR::FILE *          getDevLogFile();
+   static void            setDevLogFile(TR::FILE * f);
+
+
    char *          getLogFileName()      {return _logFileName;}
 
    char *          getBlockShufflingSequence(){ return _blockShufflingSequence; }
@@ -2146,7 +2151,8 @@ protected:
    char                       *_logFileName;
    char                       *_suffixLogsFormat;
    TR::FILE *                      _logFile;
-
+   /** AR07 */
+   static TR::FILE *               _devLogFile;
 
    char                       *_optFileName;
    int32_t                    *_customStrategy;     // Actually array of TR_OptimizerImpl::Optimizations numbers read from optFileName

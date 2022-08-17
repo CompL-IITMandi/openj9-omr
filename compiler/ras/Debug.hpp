@@ -404,6 +404,9 @@ public:
 
    TR_Debug(TR::Compilation * c);
 
+   /** AR07 */
+   static TR::FILE *          _devlogFile;
+
    TR::FILE *getFile() {return _file;}
    virtual void   setFile(TR::FILE *f) {_file = f;}
 
@@ -427,6 +430,9 @@ public:
 
    virtual TR_FrontEnd *fe() { return _fe; }
    virtual TR::Compilation *comp() { return _comp; }
+   /** AR07 Debug */
+   void writeToDevLog(const char *);
+   TR::FILE * createDevLog();
 
    virtual char *formattedString(char *buf, uint32_t bufLen, const char *format, va_list args, TR_AllocationKind=heapAlloc);
 
