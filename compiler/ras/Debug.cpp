@@ -5412,3 +5412,33 @@ void TR_Debug::printDebugCounters(TR::DebugCounterGroup *counterGroup, const cha
       }
 
    }
+
+   /** AR07 Debug - Custom Log File for printing debug operations */
+   TR::FILE * 
+   TR_Debug::createDevLog()
+   {
+      TR::FILE *  devLogFile = trfopen("devLog.log", "wb+", false);
+      comp()->getOptions()->setDevLogFile(devLogFile);
+      trfprintf(devLogFile,"Dev log created.\n");
+      // ::fputs("Dev log created", comp()->getOptions()->getDevLogFile()->_stream);
+      return devLogFile;
+   }
+   /** AR07 Debug End - Custom Log File for printing debug operations */
+
+   /** AR07 Debug - Custom Log File for printing debug operations */
+   void 
+   TR_Debug::writeToDevLog(const char* message)
+   {
+      TR::FILE *devLog = comp()->getOptions()->getDevLogFile();
+      if(devLog == NULL) {
+         devLog = createDevLog();
+      }
+      if (devLog != NULL)
+      {
+         // ::fputs(message, devLog->_stream);
+         trfprintf(devLog,message);
+         trfprintf(devLog,"\n");
+         trfflush(devLog);
+      }
+   }
+   /** AR07 Debug End - Custom Log File for printing debug operations */

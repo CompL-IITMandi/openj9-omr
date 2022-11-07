@@ -1672,6 +1672,8 @@ bool          OMR::Options::_optionsTablesValidated = false;
 
 bool          OMR::Options::_dualLogging = false; // a log file can be used in two different option sets, or in
                                                 // in the main TR::Options object and in an option set
+/** AR07 */
+TR::FILE *    OMR::Options::_devLogFile = NULL;
 bool          OMR::Options::_logsForOtherCompilationThreadsExist = false;
 
 int32_t       OMR::Options::_aggressivenessLevel = -1; // -1 means not set
@@ -2976,6 +2978,21 @@ void OMR::Options::closeLogsForOtherCompilationThreads(TR_FrontEnd * fe)
       }
    fe->releaseLogMonitor();
    }
+
+
+   /** AR07 Debug Custom Logging options. All debug lines to be printed to _devLogFile */
+   TR::FILE *
+   OMR::Options::getDevLogFile()          
+   {
+      return _devLogFile;
+   }
+   
+   void             
+   OMR::Options::setDevLogFile(TR::FILE * f)    
+   {
+      _devLogFile = f;
+   }
+   /** AR07 Debug End*/
 
 
 // -----------------------------------------------------------------------------
