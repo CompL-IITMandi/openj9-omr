@@ -1282,6 +1282,14 @@ OMR::SymbolReferenceTable::findStaticSymbol(TR_ResolvedMethod * owningMethod, in
                                             (type == TR::Int32 ? aliasBuilder.intStaticSymRefs() : aliasBuilder.nonIntPrimitiveStaticSymRefs()), self());
    while ((symRef = i.getNext()))
       {
+      // /** AR07 Debug */
+      // if(strcmp(symRef->getOwningMethod(comp())->classNameChars(),"org/graalvm/svm/objectinlining/utils/ValueActor")==0)
+      // {
+      //    if(symRef->getCPIndex() == 5 || symRef->getCPIndex() == 10)
+      //    {
+      //       printf("\nDebugPoint: %s in index %d",symRef->getOwningMethod(comp())->classNameChars(),symRef->getCPIndex());
+      //    }
+      // }
       if (symRef->getSymbol()->getDataType() == type &&
           symRef->getCPIndex() != -1 &&
             TR::Compiler->cls.jitStaticsAreSame(comp(), owningMethod, cpIndex,
