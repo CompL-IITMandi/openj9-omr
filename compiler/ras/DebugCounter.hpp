@@ -70,6 +70,18 @@ struct DebugCounterReloData
    int32_t              _staticDelta;
    };
 
+/** AR07 Counter for hotfields */
+struct HotField
+{
+   const char *  fieldName;
+   uintptr_t     count;
+};
+
+struct HotFieldList{ 
+   uintptr_t listSize = 0;
+   HotField * fields[];
+};
+
 class DebugCounterBase
    {
 public:
@@ -102,6 +114,9 @@ class DebugCounter : public DebugCounterBase
    uint64_t            _bumpCountBase; // The last value of bumpCount that was accumulated into totalCount
    int8_t              _fidelity;      // (See the Fidelities enumeration)
    flags8_t            _flags;
+
+   /** AR07 Debug */
+   HotFieldList * hList;
 
    enum Flags
       {
@@ -157,6 +172,8 @@ class DebugCounter : public DebugCounterBase
 
    static bool relocatableDebugCounter(TR::Compilation *comp);
 
+   /** AR07 Debug for hot fields */
+   void prependHotFieldCounter(const char * fieldName);
    enum Fidelities // Signal-to-noise ratio (SNR) in decibels
       {
       Free       = 30, // Time spent maintaining counters is undetectable

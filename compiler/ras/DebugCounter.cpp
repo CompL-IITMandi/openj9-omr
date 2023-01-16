@@ -53,7 +53,6 @@
 #include <malloc.h> // alloca on Windows
 #endif
 
-
 void
 TR::DebugCounter::prependDebugCounterBump(TR::Compilation *comp, TR::TreeTop *nextTreeTop, TR::DebugCounterBase *counter, int32_t delta)
    {
@@ -618,3 +617,25 @@ void OMR::PersistentInfo::createCounters(TR_PersistentMemory *mem)
    _staticCounters  = new (mem) TR::DebugCounterGroup(mem);
    _dynamicCounters = new (mem) TR::DebugCounterGroup(mem);
    }
+
+/** AR07 Debug counter for hotfields */
+void TR::DebugCounter::prependHotFieldCounter(const char * fieldName)
+{
+   bool exists= false;
+   for (int32_t i = 0; hList->listSize; i++){
+      if(strcmp(hList->fields[i]->fieldName,fieldName)){
+         hList->fields[i]->count++;
+         exists = true;
+      }
+   }
+   if(!exists){
+      // if(hList == NULL)
+      // {
+      //    *hList = (HotField *) calloc(1000, sizeof(HotField));
+      // }  
+      HotField * newHotfield = (HotField *)malloc(sizeof(HotField));
+      newHotfield->fieldName=fieldName;
+      newHotfield->count=1;
+      hList->fields[hList->listSize++] = newHotfield;
+   }
+}

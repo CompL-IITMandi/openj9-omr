@@ -400,6 +400,19 @@ namespace TR { class RVHelperCallSnippet; }
 TR_Debug *createDebugObject(TR::Compilation *);
 
 
+/** AR07 Counter for hotfields */
+struct HotField
+{
+   const char *  fieldName;
+   uintptr_t     count;
+   struct HotField * nextField;
+};
+
+struct HotFieldList{ 
+   uintptr_t listSize = 0;
+   struct HotField * field;
+};
+
 class TR_Debug
    {
 public:
@@ -411,6 +424,8 @@ public:
 
    /** AR07 */
    static TR::FILE *          _devlogFile;
+   /** AR07 Debug */
+   static HotFieldList * hList;
 
    TR::FILE *getFile() {return _file;}
    virtual void   setFile(TR::FILE *f) {_file = f;}
@@ -438,6 +453,12 @@ public:
    /** AR07 Debug */
    void writeToDevLog(const char *);
    TR::FILE * createDevLog();
+   /** AR07 Debug for hot fields */
+   void prependHotFieldCounter(const char * fieldName);
+   static void printHotFieldCounters();
+   static void sortHFList();
+   static bool containsField(HotField hottestFields[], int32_t currentSize, HotField * fieldToBeChecked);
+   static bool isHotterField(int32_t hottnessCount, int32_t itrHighCount, HotField * fieldToBeChecked);
 
    virtual char *formattedString(char *buf, uint32_t bufLen, const char *format, va_list args, TR_AllocationKind=heapAlloc);
 

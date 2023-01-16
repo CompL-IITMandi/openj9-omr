@@ -128,6 +128,9 @@
 int32_t addressWidth = 0;
 
 
+/** AR07 Debug - Counter for hotfields */
+HotFieldList * TR_Debug::hList = NULL;
+
 extern const char *pIlOpNames[];  // from Tree.cpp
 
 const char * jitdCurrentMethodSignature(TR::Compilation *comp)
@@ -5442,3 +5445,192 @@ void TR_Debug::printDebugCounters(TR::DebugCounterGroup *counterGroup, const cha
       }
    }
    /** AR07 Debug End - Custom Log File for printing debug operations */
+
+   /** AR07 Debug - counter for hotfields */
+   void TR_Debug::prependHotFieldCounter(const char * fieldNameKey)
+   {
+      int length = strlen(fieldNameKey)+1;
+      char * fieldName = (char*) malloc(length*sizeof(char));
+      strcpy(fieldName,fieldNameKey);
+      if(!fieldName) 
+      {
+         printf("Invalid field key\n");
+         return;
+      }
+      if(hList && (hList->listSize>0))
+      {
+         HotField * hotField = hList->field;
+         for (uintptr_t i = 0; i < hList->listSize; i++)
+         {
+            if((strcmp(hotField->fieldName,fieldName))==0)
+            {
+               hotField->count++;
+               return;
+            }
+            hotField = hotField->nextField;
+         }
+      }
+         // while(hotField)
+         // {
+         //    if(strcmp(hotField->fieldName,fieldName))
+         //    {
+         //       hotField->count++;
+         //       exists = true;
+         //       break;
+         //    }
+         // }
+      if(!hList)
+      {
+         hList = (HotFieldList *) malloc(sizeof(HotFieldList));
+         hList->listSize=1;
+         HotField * newHotfield = (HotField *)malloc(sizeof(HotField));
+         newHotfield->fieldName=fieldName;
+         newHotfield->count=1;
+         newHotfield->nextField = NULL;
+         hList->field = newHotfield;
+      }
+      else
+      {
+         HotField * hotField = hList->field;
+         for (int32_t i = 0; i < hList->listSize-1; i++)
+         {
+            hotField = hotField->nextField;
+         }
+         HotField * newHotfield = (HotField *)malloc(sizeof(HotField));
+         newHotfield->fieldName=fieldName;
+         newHotfield->count=1;
+         newHotfield->nextField = NULL;
+         hotField->nextField = newHotfield;
+         ++hList->listSize;
+      }
+      // {
+         // if(hList == NULL)
+         // {
+         //    *hList = (HotField *) calloc(1000, sizeof(HotField));
+         // }  
+         // if(hList->listSize < 10000000)
+         // {
+            // HotField * newHotfield = (HotField *)malloc(sizeof(HotField));
+            // newHotfield->fieldName=fieldName;
+            // newHotfield->count=1;
+            // newHotfield->nextField = NULL;
+            // HotField * hotField = hList->field;
+            // while(hotField)
+            // {
+            //    hotField = hotField->nextField;
+            // }
+            // hotField->nextField = newHotfield;
+            // if(hList->fields && hList->listSize>0)
+            // {
+            //    hList->fields[hList->listSize++] = newHotfield;
+            // }
+            // else
+            // {
+            //    *hList->fields = (HotField *) calloc(10000000, sizeof(HotField));
+            //    hList->fields[hList->listSize] = (HotField *)malloc(sizeof(HotField));
+            //    hList->fields[hList->listSize]->count=1;
+            //    hList->fields[hList->listSize]->fieldName=fieldName;
+            //    hList->listSize++;
+            // }
+         // }
+   }
+   // }
+   /** AR07 Debug counter for hotfields end*/
+
+   /** AR07 Debug counter for hotfields */
+   void TR_Debug::printHotFieldCounters()
+   {
+      // for (int32_t i = 0; hList->listSize; i++){
+      //    printf("Fieldname: %s and Count: %lu \n",hList->fields[i]->fieldName,hList->fields[i]->count);
+      // }
+      // HotField * hotField = hList->field;
+      // while(hotField)
+      // {
+      //    printf("Fieldname: %s and Count: %lu \n",hotField->fieldName,hotField->count);
+      //    hotField = hotField->nextField;
+      // }
+      if(hList)
+      {
+         sortHFList();
+         printf("Going to print hotfields \n");
+         HotField * hotField = hList->field;
+         for (int32_t i = 0; i < hList->listSize; i++)
+         {
+            printf("Fieldname: %s and Count: %lu \n",hotField->fieldName,hotField->count);
+            hotField = hotField->nextField;
+         }
+         printf("--------------------------------------------Going to print hotfields End----------------------------------------------------- \n");
+      }
+   }
+
+   /** AR07 Function to sort the hot fields LL. */
+   void TR_Debug::sortHFList()
+   {
+      printf("Sorted hot field list \n");
+      if(hList)
+      {
+         u_int32_t hListSize = hList->listSize;
+         HotField hottestField[hListSize];
+         HotField * headNode = hList->field;
+         uintptr_t highest = 0;
+         // HotField * hottestFieldPrev =  NULL; //(HotField *)malloc(sizeof(HotField));
+         // hottestFieldPrev->count = 0;
+         // hottestFieldPrev->fieldName = "dummy";
+         for(int i = 0; i<hListSize;i++)
+         {
+            HotField * hotField = hList->field;
+            HotField * newHottestField;
+            uintptr_t currentHighest = 0;
+            int32_t hottnessCount = INT32_MAX;
+            for (int32_t j = 0; j < hListSize; j++)
+            {
+               // if((hotField->count >= currentHighest) 
+               // && (i == 0 || (i > 0 && hotField->count <= hottestField[i-1].count))
+               // && hotField->fieldName
+               if(isHotterField(hottnessCount,currentHighest,hotField)
+               && !containsField(hottestField,i,hotField))
+               {
+                  currentHighest = hotField->count;
+                  newHottestField = hotField;
+               }
+               hotField = hotField->nextField;
+            }
+            hottestField[i] = {newHottestField->fieldName,newHottestField->count,NULL};
+            hottnessCount = newHottestField->count;
+         }
+
+         printf("----------------------------------------------------------------------\n");
+         for(int i = 0; i<hListSize;i++)
+         {
+            
+            printf("Fieldname: %s and Count: %lu \n",hottestField[i].fieldName,hottestField[i].count);
+         }
+         printf("----------------------------------------------------------------------\n");
+      }
+   }
+
+   bool TR_Debug::containsField(HotField hottestFields[], int32_t currentSize, HotField * fieldToBeChecked)
+   {
+      if(currentSize>0 && hottestFields && fieldToBeChecked)
+      {
+         for (int32_t i = 0; i < currentSize; i++)
+            {
+               if(strcmp(fieldToBeChecked->fieldName,hottestFields[i].fieldName) == 0)
+               {
+                  return true;
+               }
+            }
+      }
+      return false;
+   }
+
+   bool TR_Debug::isHotterField(int32_t hottnessCount, int32_t itrHighCount, HotField * fieldToBeChecked)
+   {
+      if(fieldToBeChecked && fieldToBeChecked->fieldName 
+      && fieldToBeChecked->count >=itrHighCount 
+      && fieldToBeChecked->count <= hottnessCount)
+      {
+         return true;
+      }
+      return false;
+   }
