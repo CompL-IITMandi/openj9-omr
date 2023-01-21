@@ -5552,14 +5552,14 @@ void TR_Debug::printDebugCounters(TR::DebugCounterGroup *counterGroup, const cha
       if(hList)
       {
          sortHFList();
-         printf("Going to print hotfields \n");
-         HotField * hotField = hList->field;
-         for (int32_t i = 0; i < hList->listSize; i++)
-         {
-            printf("Fieldname: %s and Count: %lu \n",hotField->fieldName,hotField->count);
-            hotField = hotField->nextField;
-         }
-         printf("--------------------------------------------Going to print hotfields End----------------------------------------------------- \n");
+         // printf("Going to print hotfields \n");
+         // HotField * hotField = hList->field;
+         // for (int32_t i = 0; i < hList->listSize; i++)
+         // {
+         //    printf("Fieldname: %s and Count: %lu \n",hotField->fieldName,hotField->count);
+         //    hotField = hotField->nextField;
+         // }
+         // printf("--------------------------------------------Going to print hotfields End----------------------------------------------------- \n");
       }
    }
 
